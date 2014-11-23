@@ -1,0 +1,48 @@
+---
+title: "Project"
+output: pdf_document
+date: "Sunday, November 23, 2014"
+---
+###Lambda = 0.2, 40 samples, 2000 trials
+
+library(ggplot2)
+set.seed(314159)  
+lambda <- 0.2;    number.samples <- 40;     nosim <- 2000
+means   <- apply(matrix(rexp(number.samples*nosim, lambda) , nosim), 1, mean)
+mean.of.sample.means     <- mean(means)
+theoretical.mean         <- 1/lambda
+variance.of.sample.means <- var(means)
+theoretical.variance     <- (1/(number.samples*lambda**2))
+ g <- ggplot(data = data.frame(means), aes(x = means)) +
++     geom_histogram(aes(y = ..density..), binwidth= 0.1, fill= 'lightblue', colour='black') +
++     geom_density(colour = "blue")+   stat_function(fun = dnorm, colour = "red", size = 1,
++                                                    args = list(mean = 5,sd = 1/(lambda)*(1/sqrt(number.samples))))
+g + xlab("Means") + 
++     ylab("") + 
++     ggtitle("Means of Samples from Exponential Distribution") +  
++     annotate("text", x = c(7.4,7.5),  y = c(0.5,0.55), size = 3,
++              label =  c("Uniform Density", "Density of samples")) +
++     annotate("segment", x = c(6.2,6.2), xend = c(6.4,6.4), y  = c(0.5,0.55), 
++              yend = c(0.5,0.55),colour = c("red", "blue"))
+shapiro <- as.character( shapiro.test(means)$p.value)
+
+
+###Lambda 0.1 to 100.0, 40 samples, 2000 trials
+
+Lambda.Value <- seq(0.1, 100.0, by = .25);
+ 
+Coverage <- sapply(Lambda.Value, function(lambda){
++     runs   <- matrix(rexp(number.samples*nosim,lambda) , nosim)    
++     lhats  <- apply(runs , 1, mean)
++     lsd    <- apply(runs,1,sd)
++     ll     <- lhats - qnorm(.975) * lsd /sqrt(number.samples)
++     ul     <- lhats + qnorm(.975) * lsd /sqrt(number.samples)
++     mean(ll < 1/lambda & ul > 1/lambda) })
+ggplot(data.frame(Lambda.Value, Coverage), aes(x = Lambda.Value, y = Coverage)) +  
+    geom_line(size = .25) + geom_hline(yintercept = 0.95) + 
+    geom_hline(yintercept = 0.925, colour='navy', linetype=2)+
+    ylim(.85, 1.0) +  xlab("Lambda") +  
+    ggtitle("Coverage of 95% intervals")
+    
+###Coverage: about 92.5% for the 95% intervals for sample sizes of 40.
+###The value of Lambda does not seem to affect the coverage.
