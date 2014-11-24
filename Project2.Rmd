@@ -1,7 +1,7 @@
 ---
 title: "Poject2"
+output: pdf_document
 date: "Sunday, November 23, 2014"
-output: html_document
 ---
 ###Summary
 library(ggplot2)
@@ -56,7 +56,7 @@ ggplot(ToothGrowth, aes(x=interaction(Supplement,Dosage), y=Length,colour=Dosage
         facet_grid(.~Var, scales="free_x") +
         xlab("") +  scale_fill_discrete(name="Group") +
         ylab("")  
-  #####Testing      
+####Testing      
         h$Dosage <- factor(ToothGrowth$Dosage, levels=c("2", "1", "0.5"))
 
 
